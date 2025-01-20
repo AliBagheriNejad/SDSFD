@@ -203,22 +203,22 @@ def clear_files(file_paths: list) -> int:
 
 
 
-# Code tests
-df = read_source('/home/fdi/AliBagheriNejad/Thesis/MECO/data/vib_case_dataset_ICMS Dataset.xlsx', show_columns=False)
+# # Code tests
+# df = read_source('/home/fdi/AliBagheriNejad/Thesis/MECO/data/vib_case_dataset_ICMS Dataset.xlsx', show_columns=False)
 
-df1,df2  = double_data(
-    df,
-    ['VibGt_39VS4_1', 'VibGt_39VS4_2'],
-)
+# df1,df2  = double_data(
+#     df,
+#     ['VibGt_39VS4_1', 'VibGt_39VS4_2'],
+# )
 
-files = save_to_temp_df(
-    df1,
-    df2,
-    dir = '/home/fdi/AliBagheriNejad/Thesis/MECO/code/TLT/temp'    
-)
+# files = save_to_temp_df(
+#     df1,
+#     df2,
+#     dir = '/home/fdi/AliBagheriNejad/Thesis/MECO/code/TLT/temp'    
+# )
 
 
-clear_files(files)
+# clear_files(files)
 
 
 
