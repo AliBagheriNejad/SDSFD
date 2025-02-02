@@ -236,6 +236,26 @@ def extract_first_features(model, input_tensor):
             x_input = x.view(x.shape[0], x.shape[2], x.shape[1])
         return model.feature_extractor_1(x_input)
 
+# Function to extract first feature extractor outputs
+def extract_features(model, input_tensor,device):
+    """
+    Extracts features from the first feature extractor in the model.
+
+    Args:
+        model (nn.Module): The model.
+        input_tensor (torch.Tensor): Input tensor.
+
+    Returns:
+        torch.Tensor: Extracted features.
+    """
+    model.eval()
+    with torch.no_grad():
+        x = input_tensor.to(device)
+        if model.in_ch == 1:
+            x_input = x.view(x.shape[0], 1, x.shape[1])
+        else:
+            x_input = x.view(x.shape[0], x.shape[2], x.shape[1])
+        return model.feature_extractor(x_input)
 
 
 # Plot reduced features

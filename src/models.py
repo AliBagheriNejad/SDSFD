@@ -16,31 +16,31 @@ class FeatureExtractor(nn.Module):
         drop (float): Dropout rate for regularization.
         input_channels (int): Number of input channels.
     """
-    def __init__(self, drop=0.1, input_channels=1):
+    def __init__(self, drop=0.1, input_channels=1, cons:int=2):
         super(FeatureExtractor, self).__init__()
 
-        self.conv1 = nn.Conv1d(in_channels=input_channels, out_channels=32, kernel_size=128)
-        self.bn1 = nn.BatchNorm1d(num_features=32)
+        self.conv1 = nn.Conv1d(in_channels=input_channels, out_channels=16*cons, kernel_size=128)
+        self.bn1 = nn.BatchNorm1d(num_features=16*cons)
         self.dropout1 = nn.Dropout(p=drop)
         self.pool1 = nn.MaxPool1d(kernel_size=4)
 
-        self.conv2 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size=64)
-        self.bn2 = nn.BatchNorm1d(num_features=64)
+        self.conv2 = nn.Conv1d(in_channels=16*cons, out_channels=32*cons, kernel_size=64)
+        self.bn2 = nn.BatchNorm1d(num_features=32*cons)
         self.dropout2 = nn.Dropout(p=drop)
         self.pool2 = nn.MaxPool1d(kernel_size=4)
 
-        self.conv3 = nn.Conv1d(in_channels=64, out_channels=128, kernel_size=16)
-        self.bn3 = nn.BatchNorm1d(num_features=128)
+        self.conv3 = nn.Conv1d(in_channels=32*cons, out_channels=64*cons, kernel_size=16)
+        self.bn3 = nn.BatchNorm1d(num_features=64*cons)
         self.dropout3 = nn.Dropout(p=drop)
         self.pool3 = nn.MaxPool1d(kernel_size=2)
 
-        self.conv4 = nn.Conv1d(in_channels=128, out_channels=256, kernel_size=3)
-        self.bn4 = nn.BatchNorm1d(num_features=256)
+        self.conv4 = nn.Conv1d(in_channels=64*cons, out_channels=128*cons, kernel_size=3)
+        self.bn4 = nn.BatchNorm1d(num_features=128*cons)
         self.dropout4 = nn.Dropout(p=drop)
         self.pool4 = nn.MaxPool1d(kernel_size=2)
 
-        self.conv5 = nn.Conv1d(in_channels=256, out_channels=512, kernel_size=2)
-        self.bn5 = nn.BatchNorm1d(num_features=512)
+        self.conv5 = nn.Conv1d(in_channels=128*cons, out_channels=256*cons, kernel_size=2)
+        self.bn5 = nn.BatchNorm1d(num_features=256*cons)
         self.dropout5 = nn.Dropout(p=drop)
 
     def forward(self, x):
@@ -73,10 +73,10 @@ class Classifier(nn.Module):
         num_classes (int): Number of output classes.
         drop (float): Dropout rate for regularization.
     """
-    def __init__(self, num_classes: int, drop: float = 0.2):
+    def __init__(self, num_classes: int, drop: float = 0.2, cons:int=2):
         super(Classifier, self).__init__()
 
-        self.fc1 = nn.Linear(1024*2, 128)
+        self.fc1 = nn.Linear(1024*cons, 128)
         self.dropout1 = nn.Dropout(drop)
 
         self.fc2 = nn.Linear(128, 64)
@@ -127,10 +127,10 @@ class Regressor(nn.Module):
         num_channels (int): Number of output channels for regression.
         drop (float): Dropout rate for regularization.
     """
-    def __init__(self, num_channels: int, drop: float = 0.2):
+    def __init__(self, num_channels: int, drop: float = 0.2, cons:int=2):
         super(Regressor, self).__init__()
         
-        self.reg1 = nn.Linear(1024*2, 128)
+        self.reg1 = nn.Linear(1024*cons, 128)
         self.reg2 = nn.Linear(128,64)
         self.reg3 = nn.Linear(64,num_channels)
 
@@ -160,12 +160,12 @@ class Network(nn.Module):
         num_classes (int): Number of output classes for classification.
         in_channels (int): Number of input channels for the feature extractor.
     """
-    def __init__(self, num_classes, in_channels=1):
+    def __init__(self, num_classes, in_channels=1, cons:int=2):
         super(Network, self).__init__()
-        self.feature_extractor_1 = FeatureExtractor(input_channels=in_channels)
-        self.feature_extractor_2 = FeatureExtractor(input_channels=in_channels)
-        self.regressor = Regressor(2)
-        self.classifier = Classifier(num_classes)
+        self.feature_extractor_1 = FeatureExtractor(input_channels=in_channels, cons=cons)
+        self.feature_extractor_2 = FeatureExtractor(input_channels=in_channels, cons=cons)
+        self.regressor = Regressor(2, cons=cons)
+        self.classifier = Classifier(num_classes, cons=cons)
 
         # Early stopping parameters
         self.best_acc = 0

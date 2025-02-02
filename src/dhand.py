@@ -57,7 +57,8 @@ def read_source(
 def double_data(
     df: pd.DataFrame,
     cols: List[str],
-    sample_length: int = 10
+    sample_length: int = 10,
+    overlap:int = 0
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Creates two new DataFrames from the original DataFrame by splitting 
@@ -89,30 +90,39 @@ def double_data(
     if not isinstance(sample_length, int) or sample_length <= 0:
         raise ValueError("'sample_length' must be a positive integer.")
     
-    def create_dataset(sensor_data: pd.Series, sample_length: int) -> pd.DataFrame:
+    # Creating separate dataset for segmented data
+    def create_dataset(sensor_data: pd.Series, sample_length: int, overlap: int) -> pd.DataFrame:
         """
-        Splits sensor data into samples of a given length.
+        Splits sensor data into samples of a given length with overlap.
 
         Args:
             sensor_data (pd.Series): A Series containing the sensor's data.
             sample_length (int): Length of each sample.
+            overlap (int): Number of overlapping data points between consecutive samples.
 
         Returns:
             pd.DataFrame: A new DataFrame where each row is a sample.
         """
-        num_samples = len(sensor_data) // sample_length  # Number of full samples
-        # Ensure enough data to create at least one sample
-        if num_samples == 0:
-            raise ValueError("Insufficient data to create a single sample with the given sample length.")
-        # Reshape the data into samples
-        samples = sensor_data.iloc[:num_samples * sample_length].values.reshape(-1, sample_length)
+        if sample_length <= overlap:
+            raise ValueError("Sample length must be greater than overlap.")
+        if len(sensor_data) < sample_length:
+            raise ValueError("Insufficient data to create even one sample with the given sample length.")
+        
+        step = sample_length - overlap
+        samples = []
+
+        # Generate samples with the defined overlap
+        for start in range(0, len(sensor_data) - sample_length + 1, step):
+            samples.append(sensor_data.iloc[start:start + sample_length].values)
+        
         return pd.DataFrame(samples)
 
     # Create datasets for each sensor
-    df_1 = create_dataset(df[cols[0]], sample_length=sample_length)
-    df_2 = create_dataset(df[cols[1]], sample_length=sample_length)
+    df_1 = create_dataset(df[cols[0]], sample_length=sample_length, overlap = overlap)
+    df_2 = create_dataset(df[cols[1]], sample_length=sample_length, overlap = overlap)
+    df_time = create_dataset(df['time'],  sample_length=sample_length, overlap = overlap)
 
-    return df_1, df_2
+    return df_1, df_2, df_time
 
 
 
