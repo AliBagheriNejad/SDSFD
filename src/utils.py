@@ -330,3 +330,26 @@ def plot_training_metrics(metrics):
     plt.yticks(fontsize=15)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.show()
+
+
+def data_forward(model, val_loader):
+
+    y_pred = []
+    y_true = []
+    model.eval()
+    with torch.no_grad():
+        for batch_data, batch_labels in val_loader:
+            batch_data = batch_data.to(device)
+            batch_labels = batch_labels.to(device)
+            # batch_data = batch_data.unsqueeze(1)
+            _, outputs = model(batch_data)
+            _, predicted = torch.max(outputs, 1)
+
+            y_pred.append(
+                predicted.cpu().detach().numpy()
+            )
+            y_true.append(
+                batch_labels.cpu().detach().numpy()
+            )
+
+    return np.hstack(y_pred), np.hstack(y_true)

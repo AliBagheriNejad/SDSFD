@@ -89,34 +89,7 @@ def double_data(
     # Validate sample_length
     if not isinstance(sample_length, int) or sample_length <= 0:
         raise ValueError("'sample_length' must be a positive integer.")
-    
-    # Creating separate dataset for segmented data
-    def create_dataset(sensor_data: pd.Series, sample_length: int, overlap: int) -> pd.DataFrame:
-        """
-        Splits sensor data into samples of a given length with overlap.
-
-        Args:
-            sensor_data (pd.Series): A Series containing the sensor's data.
-            sample_length (int): Length of each sample.
-            overlap (int): Number of overlapping data points between consecutive samples.
-
-        Returns:
-            pd.DataFrame: A new DataFrame where each row is a sample.
-        """
-        if sample_length <= overlap:
-            raise ValueError("Sample length must be greater than overlap.")
-        if len(sensor_data) < sample_length:
-            raise ValueError("Insufficient data to create even one sample with the given sample length.")
-        
-        step = sample_length - overlap
-        samples = []
-
-        # Generate samples with the defined overlap
-        for start in range(0, len(sensor_data) - sample_length + 1, step):
-            samples.append(sensor_data.iloc[start:start + sample_length].values)
-        
-        return pd.DataFrame(samples)
-
+         
     # Create datasets for each sensor
     df_1 = create_dataset(df[cols[0]], sample_length=sample_length, overlap = overlap)
     df_2 = create_dataset(df[cols[1]], sample_length=sample_length, overlap = overlap)
@@ -211,7 +184,32 @@ def clear_files(file_paths: list) -> int:
     return deleted_count
 
 
+# Creating separate dataset for segmented data
+def create_dataset(sensor_data: pd.Series, sample_length: int, overlap: int) -> pd.DataFrame:
+    """
+    Splits sensor data into samples of a given length with overlap.
 
+    Args:
+        sensor_data (pd.Series): A Series containing the sensor's data.
+        sample_length (int): Length of each sample.
+        overlap (int): Number of overlapping data points between consecutive samples.
+
+    Returns:
+        pd.DataFrame: A new DataFrame where each row is a sample.
+    """
+    if sample_length <= overlap:
+        raise ValueError("Sample length must be greater than overlap.")
+    if len(sensor_data) < sample_length:
+        raise ValueError("Insufficient data to create even one sample with the given sample length.")
+    
+    step = sample_length - overlap
+    samples = []
+
+    # Generate samples with the defined overlap
+    for start in range(0, len(sensor_data) - sample_length + 1, step):
+        samples.append(sensor_data.iloc[start:start + sample_length].values)
+    
+    return pd.DataFrame(samples)
 
 # # Code tests
 # df = read_source('/home/fdi/AliBagheriNejad/Thesis/MECO/data/vib_case_dataset_ICMS Dataset.xlsx', show_columns=False)
