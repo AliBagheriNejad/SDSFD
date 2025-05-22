@@ -233,10 +233,10 @@ class NetworkNoReg(nn.Module):
         num_classes (int): Number of output classes for classification.
         in_channels (int): Number of input channels for the feature extractor.
     """
-    def __init__(self, num_classes, in_channels=1):
+    def __init__(self, num_classes, in_channels=1, cons:int=2):
         super(NetworkNoReg, self).__init__()
-        self.feature_extractor = FeatureExtractor(input_channels=in_channels)
-        self.classifier = Classifier(num_classes)
+        self.feature_extractor = FeatureExtractor(input_channels=in_channels,  cons=cons)
+        self.classifier = Classifier(num_classes, cons=cons)
 
         # Early stopping parameters
         self.best_acc = 0
